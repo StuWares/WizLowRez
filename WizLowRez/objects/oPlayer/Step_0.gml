@@ -8,6 +8,11 @@ keyItem = keyboard_check_pressed(vk_shift);
 
 // creates smoother diagonal movement
 inputDirection = point_direction(0,0,keyRight-keyLeft,keyDown-keyUp);
+
+// sets attack direction when stationary
+if (keyRight - keyLeft !=0) || (keyDown - keyUp !=0) {
+	attackDirection = inputDirection;
+}
 // prevent invalid combinations
 inputMagnitude = (keyRight - keyLeft !=0) || (keyDown - keyUp !=0);
 
@@ -16,3 +21,30 @@ hSpeed = lengthdir_x(inputMagnitude * speedWalk, inputDirection);
 vSpeed = lengthdir_y(inputMagnitude * speedWalk, inputDirection);
 
 PlayerCollision();
+
+// update sprite
+var _oldSprite = sprite_index;
+
+if (inputMagnitude != 0) {
+	direction = inputDirection;
+	sprite_index = spriteRun;
+} else {
+	sprite_index = spriteIdle;
+}
+if (_oldSprite != sprite_index) localFrame = 0; // goes to the first frame of the animation
+
+// update image index
+PlayerAnimateSprite();
+
+
+// Basic attack in direction player is facing
+basicAttackDelay--;
+if (keyAttack) && (basicAttackDelay < 0) {
+	with (instance_create_layer(x,y,"Spells",oBasicAttack)) {
+		speed = 2;
+		direction = other.attackDirection;
+		image_angle = direction;
+		
+		basicAttackDelay = 60;
+	}
+}
